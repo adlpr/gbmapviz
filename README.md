@@ -9,7 +9,8 @@ Call at the end of your assembly script for a handy visual debugging aid.
 ## Usage
 
 ```bash
-python3 gbmapviz.py mapfilename```
+python3 gbmapviz.py mapfilename
+```
 
 * read: `mapfilename.map`
 * output: `mapfilename.map.html`
