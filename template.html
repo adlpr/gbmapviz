@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="author" content="gbmapviz"/>
+    <title>gbmapviz</title>
+    <style>
+      body {
+        text-align: center;
+        width: 800px;
+      }
+      body, svg, table { margin: auto; }
+      svg { border: black solid 1px; }
+      tr td:first-of-type, tr th:first-of-type {
+        text-align: right;
+        font-family: monospace;
+      }
+      tr th + th {
+        text-align: left;
+        border-bottom: black solid 2px;
+      }
+      td { text-align: left; }
+    </style>
+  </head>
+
+  <body>
+    {% for bank in map_data %}
+      <h1>{{ bank['name']}}</h1>
+      {{ bank['svg'] }}
+      {{ bank['table'] }}
+      <hr/>
+    {% endfor %}
+  </body>
+
+</html>
