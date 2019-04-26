@@ -21,8 +21,7 @@ class RGBASMMap:
         self.html_template = Environment(loader=FileSystemLoader(searchpath="./")).get_template('template.html')
 
     def to_html(self):
-        map_data = [{'name':bank.name,'table':bank.to_html_table(),'svg':bank.to_svg()} for bank in self.banks if bank.sections]
-        return self.html_template.render(map_data=map_data)
+        return self.html_template.render(gbmap=self)
 
     def __parse(self, map_str):
         # split by bank and parse
@@ -45,22 +44,31 @@ class RGBASMMapBank:
         return sum(map(len, self.sections))
 
     def to_svg(self, width=800, height=60):
-        # result = f'<rect x="0" y="0" width="{width}" height="{height}" style="fill:rgb(0,0,0,0);stroke-width:3;stroke:rgb(0,0,0,10)" />'
         result = ""
         # add <rect> elements for each section
-        current_color = -1
+        current_color_i = -1
         for section in self.sections:
             # modulate x/width to total width
             x = (section.start - self.start_address) * width / self.size
             section_width = len(section) * width / self.size
-            # next color in palette (cycle through)
-            current_color = (current_color + 1) % len(self.color_palette)
-            result += f'<rect x="{x}" y="0" width="{section_width}" height="{height}" style="fill:rgb{self.color_palette[current_color]}" />'
+            # if width > 0, move to next color in palette (cycle through)
+            if section_width > 0:
+                current_color_i = (current_color_i + 1) % len(self.color_palette)
+            result += f'<rect x="{x}" y="0" width="{section_width}" height="{height}" style="fill:rgb{self.color_palette[current_color_i]}" />'
         return f'<svg width="{width}" height="{height}">{result}</svg>'
 
     def to_html_table(self):
+        result = ""
         # concatenate rows from each section
-        result = ''.join([section.to_html_table_rows() for section in self.sections])
+        current_bg_color_i = -1
+        for i, section in enumerate(self.sections):
+            # if length > 0, move to next color in palette (cycle through)
+            if len(section) > 0:
+                current_bg_color_i = (current_bg_color_i + 1) % len(self.color_palette)
+                current_bg_color = self.color_palette[current_bg_color_i]
+            else:
+                current_bg_color = (255,255,255)
+            result += section.to_html_table_rows(bg_color=current_bg_color)
         return f"<table>{result}</table>"
 
     def __parse(self, bank_str):
@@ -137,11 +145,15 @@ class RGBASMMapSection:
     def __len__(self):
         return self.end - self.start
 
-    def to_html_table_rows(self):
+    def to_html_table_rows(self, bg_color=(255,255,255)):
         # return as table row element(s)
-        result = f"<tr><th>${self.start:04X}–${self.end:04X}</th><th>{self.name}</th></tr>"
+        text_color = 'black' if sum(bg_color)/3 > 127 else 'white'
+        if len(self) > 0:
+            result = f'<tr"><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}–${self.end:04X}</th><th>{self.name}</th></tr>'
+        else:
+            result = f'<tr"><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}</th><th>{self.name}</th></tr>'
         for sublocation in self.sublocations:
-            result += f"<tr><td>${sublocation[0]:04X}</td><td>{sublocation[1]}</td></tr>"
+            result += f'<tr><td>${sublocation[0]:04X}</td><td>{sublocation[1]}</td></tr>'
         return result
 
     def __parse(self, section_str):

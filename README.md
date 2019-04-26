@@ -8,7 +8,7 @@ Call at the end of your assembly script for a handy visual debugging aid.
 
 ## Usage
 
-```bash
+```sh
 python3 gbmapviz.py mapfilename
 ```
 

@@ -25,11 +25,13 @@
   </head>
 
   <body>
-    {% for bank in map_data %}
-      <h1>{{ bank['name']}}</h1>
-      {{ bank['svg'] }}
-      {{ bank['table'] }}
-      <hr/>
+    {% for bank in gbmap.banks %}
+      {% if bank.sections %}
+        <h1>{{ bank.name }}</h1>
+        {{ bank.to_svg() }}
+        {{ bank.to_html_table() }}
+        <hr/>
+      {% endif %}
     {% endfor %}
   </body>
 
