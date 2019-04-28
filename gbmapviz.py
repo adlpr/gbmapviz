@@ -154,9 +154,9 @@ class RGBASMMapSection:
         # return as table row element(s)
         text_color = 'black' if sum(bg_color)/3 > 127 else 'white'
         if len(self) > 0:
-            result = f'<tr"><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}–${self.end:04X}</th><th>{self.name}</th></tr>'
+            result = f'<tr><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}–${self.end:04X}</th><th>{self.name}</th></tr>'
         else:
-            result = f'<tr"><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}</th><th>{self.name}</th></tr>'
+            result = f'<tr><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}</th><th>{self.name}</th></tr>'
         for sublocation in self.sublocations:
             result += f'<tr><td>${sublocation[0]:04X}</td><td>{sublocation[1]}</td></tr>'
         return result
