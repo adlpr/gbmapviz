@@ -8,7 +8,6 @@ def main(inf_name):
     # normalize input filename
     if not inf_name.endswith('.map'):
         inf_name += '.map'
-    inf_name = os.path.join(os.path.dirname(__file__), inf_name)
 
     with open(inf_name,'r') as inf:
         rgbasm_map = RGBASMMap(inf)
@@ -59,7 +58,8 @@ class RGBASMMapBank:
             # if width > 0, move to next color in palette (cycle through)
             if section_width > 0:
                 current_color_i = (current_color_i + 1) % len(self.color_palette)
-            result += f'<rect x="{x}" y="0" width="{section_width}" height="{height}" style="fill:rgb{self.color_palette[current_color_i]}" />'
+            section_title = f'${section.start:04X}{f"&ndash;${section.end:04X}" if len(section) > 0 else ""}: {section.name}'
+            result += f'<rect x="{x}" y="0" width="{section_width}" height="{height}" style="fill:rgb{self.color_palette[current_color_i]}"><title>{section_title}</title></rect>'
         return f'<svg width="{width}" height="{height}">{result}</svg>'
 
     def to_html_table(self):
@@ -154,7 +154,7 @@ class RGBASMMapSection:
         # return as table row element(s)
         text_color = 'black' if sum(bg_color)/3 > 127 else 'white'
         if len(self) > 0:
-            result = f'<tr><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}–${self.end:04X}</th><th>{self.name}</th></tr>'
+            result = f'<tr><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}&ndash;${self.end:04X}</th><th>{self.name}</th></tr>'
         else:
             result = f'<tr><th style="color:{text_color};background-color:rgb{bg_color};">${self.start:04X}</th><th>{self.name}</th></tr>'
         for sublocation in self.sublocations:
