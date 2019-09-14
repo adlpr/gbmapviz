@@ -8,8 +8,15 @@ Call at the end of your assembly script for a handy visual debugging aid.
 
 ## Usage
 
-```sh
-python3 gbmapviz.py mapfilename
+```
+python gbmapviz.py [-h] [-w] inf_name
+
+positional arguments:
+  inf_name    input filename (with or without .asm extension)
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -w          single WRAM bank mode (see rgblink -w)
 ```
 
 * read: `mapfilename.map`
