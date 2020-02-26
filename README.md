@@ -9,10 +9,10 @@ Call at the end of your assembly script for a handy visual debugging aid.
 ## Usage
 
 ```
-python gbmapviz.py [-h] [-w] inf_name
+python gbmapviz.py [-h] [-w] INFNAME
 
 positional arguments:
-  inf_name    input filename (with or without .asm extension)
+  INFNAME     input filename (with or without .map extension)
 
 optional arguments:
   -h, --help  show this help message and exit

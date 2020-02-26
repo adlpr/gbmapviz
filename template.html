@@ -3,36 +3,108 @@
 
   <head>
     <meta charset="utf-8"/>
-    <meta name="author" content="gbmapviz"/>
+    <meta name="author" content="gbmapviz.py"/>
     <title>gbmapviz</title>
     <style>
       body {
         text-align: center;
         width: 800px;
+        font: 300 24px/1.5 "Iosevka Aile", "Roboto", "Open Sans", sans-serif;
+        background-color: white;
+        color: rgba(34, 34, 34, 0.8);
+        text-shadow: rgba(0, 0, 0, 0.2) 1px 1px 1px;
+        text-align: center;
       }
       body, svg, table { margin: auto; }
       svg { border: black solid 1px; }
       tr td:first-of-type, tr th:first-of-type {
         text-align: right;
-        font-family: monospace;
+        font: 800 24px/1.5 "Iosevka", monospace;
+        padding: 0 0.309em;
       }
-      tr th + th {
+      tr th + th, td {
         text-align: left;
-        border-bottom: black solid 2px;
+        padding-left: 0.309em;
       }
-      td { text-align: left; }
+      tr th + th { border-bottom: black solid 2px; }
+
+      /* navigation tabs */
+      input { display: none; }
+      label {
+        display: inline-block;
+        text-align: center;
+        padding: 0.309em 0.309em;
+        min-width: 12.5%;
+      }
+      label:hover, label:focus { cursor: pointer; }
+      input:checked + label { color: white !important; }
+      
+      /* content divs */
+      #content > div {
+        display: none;
+        margin: 0 auto;
+      }
+      /* bank-dependent styling */
+      {%- for bank in gbmap.banks -%}
+        {%- if bank.sections -%}
+          /* tab colors */
+          label[for="tab-bank-{{ bank.name }}"]:hover,
+          label[for="tab-bank-{{ bank.name }}"]:focus {
+            color: rgb{{ bank.color_palette[0] }};
+          }
+          input#tab-bank-{{ bank.name }}:checked + label {
+            background-color: rgb{{ bank.color_palette[0] }};
+          }
+          /* tab control */
+          #tab-bank-{{ bank.name }}:checked ~ #content #bank-{{ bank.name }} {
+            display: block;
+          }
+        {%- endif -%}
+      {%- endfor -%}
     </style>
   </head>
 
   <body>
-    {% for bank in gbmap.banks %}
-      {% if bank.sections %}
-        <h1>{{ bank.name }}</h1>
-        {{ bank.to_svg() }}
-        {{ bank.to_html_table() }}
-        <hr/>
-      {% endif %}
-    {% endfor %}
+    <!-- navigation tabs -->
+    {%- for bank in gbmap.banks -%}
+      {%- if bank.sections -%}
+        <input id="tab-bank-{{ bank.name }}" type="radio" name="tabs"
+          {%- if bank.name == "ROM0" -%} checked {%- endif -%} >
+        <label for="tab-bank-{{ bank.name }}">{{ bank.name }}</label>
+      {%- endif -%}
+    {%- endfor -%}
+  
+    <!-- content -->
+    <div id="content">
+      {% set svg_width, svg_height = 800, 60 -%}
+      {%- for bank in gbmap.banks -%}
+        {%- if bank.sections -%}
+          <div id="bank-{{ bank.name }}">
+            <h1>{{ bank.name }}</h1>
+            <svg width="{{ svg_width }}" height="{{ svg_height }}">
+              {%- for svg_section in bank.svg_section_info(svg_width, svg_height) -%}
+                {%- set section_x, section_width, section_color, section_title = svg_section -%}
+                <rect x="{{ section_x }}" y="0" width="{{ section_width }}" height="{{ svg_height }}" style="fill:rgb{{ section_color }}"><title>{{ section_title }}</title></rect>
+              {%- endfor -%}
+            </svg>
+            <table>
+              {%- for section_loc_text_color, bg_color, section_loc, section_name, symbols in bank.section_info() -%}
+                <thead>
+                  <tr><th style="color:{{ section_loc_text_color }};background-color:rgb{{ bg_color }};">{{ section_loc }}</th><th>{{ section_name }}</th></tr>
+                </thead>
+                {%- if symbols -%}
+                  <tbody>
+                    {%- for symbol_loc, symbol_name in symbols -%}
+                    <tr><td>{{ symbol_loc }}</td><td>{{ symbol_name }}</td></tr>
+                    {%- endfor -%}
+                  </tbody>
+                {%- endif -%}
+              {%- endfor %}
+            </table>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
   </body>
 
 </html>
